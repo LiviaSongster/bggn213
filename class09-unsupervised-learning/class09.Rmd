@@ -1,0 +1,370 @@
+---
+title: "Class 9 - Unsupervised Learning Mini-Project"
+author: "Livia Songster"
+date: "10/30/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load in data
+
+```{r}
+# Save your input data file to a new 'data' directory
+fna.data <- "data/WisconsinCancer.csv"
+
+# Complete the following code to input the data and store as wisc.df
+wisc.df <- read.csv("WisconsinCancer.csv")
+
+```
+
+Next we can examine the data from patient samples.
+
+```{r}
+
+# number of observations/patients
+nrow(wisc.df)
+
+# number of malignant cases, denoted M
+table(wisc.df$diagnosis)
+
+# number of features/columns ending in _mean
+colnames(wisc.df)
+length(grep("_mean",colnames(wisc.df)))
+
+# make sure that the data was loaded correctly
+#head(wisc.df,5)
+
+```
+
+Next we store the data as a matrix so we can manipulate the numeric data
+
+```{r}
+# exclude first two columns, id and diagnosis, and the last column which has NAs
+wisc.data <- as.matrix(wisc.df[,3:32])
+
+# Set the row names of wisc.data
+row.names(wisc.data) <- wisc.df$id
+#head(wisc.data)
+
+# Create diagnosis vector for later 
+diagnosis <- wisc.df$diagnosis
+```
+
+# Next: perform PCA 
+
+```{r}
+# Check column means and standard deviations
+colMeans(wisc.data)
+
+apply(wisc.data,2,sd)
+```
+
+This data needs to be scaled, because the means and SDs are not uniform.
+
+```{r}
+# Perform PCA on wisc.data by completing the following code
+wisc.pr <- prcomp(wisc.data, scale= TRUE)
+
+# check summary of data
+summary(wisc.pr)
+
+```
+From your results, 44.27% of the original variance is captured by the first principal components (PC1).
+
+Three principal components (PCs) are required to describe at least 70% of the original variance in the data, and 7 PCs are required to describe at least 90% of the original variance.
+
+# Interpreting PCA results
+Via plots.
+```{r}
+biplot(wisc.pr)
+```
+
+This plot is very poor, so let's make our own.
+
+
+```{r}
+## Variance captured per PC
+pca.var <- wisc.pr$sdev^2
+
+## Percent variance is often more informative to look at
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1)
+
+pca.var.per
+
+# next let's make a scree plot
+barplot(pca.var.per, main="Scree Plot",
+ xlab="Principal Component", ylab="Percent Variation")
+
+# Scatter plot observations by components 1 and 2
+plot(wisc.pr$x[,1], wisc.pr$x[,2], col = diagnosis,
+ xlab=paste0("PC1 (", pca.var.per[1], "%)"),
+ ylab=paste0("PC2 (", pca.var.per[2], "%)"))
+
+# Repeat for components 1 and 3
+plot(wisc.pr$x[,1], wisc.pr$x[,3], col = diagnosis,
+ xlab=paste0("PC1 (", pca.var.per[1], "%)"),
+ ylab=paste0("PC2 (", pca.var.per[3], "%)"))
+```
+
+# Variance explained
+I did a bit of this above, but here it is again in more detail:
+```{r}
+## Variance captured per PC
+pca.var <- wisc.pr$sdev^2
+
+head(pca.var)
+
+## Fraction of variance is often more informative to look at
+# Variance explained by each principal component: pve
+pve <- round(pca.var/sum(pca.var), 1)
+
+head(pve)
+
+# A few different scree plots:
+
+# Plot variance explained for each principal component
+plot(pve, xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "o")
+
+# Alternative scree plot of the same data, note data driven y-axis
+barplot(pve, ylab = "Percent of Variance Explained",
+     names.arg=paste0("PC",1:length(pve)), las=2, axes = FALSE)+
+axis(2, at=pve, labels=round(pve,2)*100 )
+
+```
+
+Next let's try another CRAN package for generating PCA plots:
+
+```{r}
+## ggplot based graph
+#install.packages("factoextra")
+library(factoextra)
+fviz_eig(wisc.pr, addlabels = TRUE)
+```
+
+Understanding check:
+
+Q13: For the first principal component, and using two significant figures , what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature radius_mean? 
+```{r}
+wisc.pr$rotation["radius_mean",1]
+```
+Q14. For the first principal component, and using two significant figures, what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature smoothness_se?
+```{r}
+wisc.pr$rotation["smoothness_se",1]
+
+```
+Q15. Which original variable contributes most to PC1?
+```{r}
+sort(abs(wisc.pr$rotation[,1]),decreasing=TRUE)
+
+```
+
+# Hierarchical clustering
+
+As part of the preparation for hierarchical clustering, the distance between all pairs of observations are computed. Furthermore, there are different ways to link clusters together, with single, complete, and average being the most common linkage methods.
+
+```{r}
+# Scale the wisc.data data: data.scaled
+data.scaled <- scale(wisc.data)
+
+# Calculate the (Euclidean) distances between all pairs of observations in the new scaled dataset
+data.dist <- dist(data.scaled)
+
+# Create a hierarchical clustering model using complete linkage
+wisc.hclust <- hclust(data.dist, method="complete")
+
+```
+
+# Results of hierarchical clustering
+
+```{r}
+# make a dendrogram
+plot(wisc.hclust)+
+abline(h=19, col="red", lty=2)
+
+```
+
+# Selecting number of clusters
+When performing supervised learning - that is, when you're trying to predict some target variable of interest and that target variable is available in the original data - using clustering to create new features may or may not improve the performance of the final model.
+
+This exercise will help you determine if, in this case, hierarchical clustering provides a promising new feature.
+
+```{r}
+# Use cutree() to cut the tree so that it has 4 clusters
+wisc.hclust.clusters <- cutree(wisc.hclust,k=4)
+
+# check this compared to the diagnosis we saved before
+hc.clust.vs.diag <- table(wisc.hclust.clusters,diagnosis)
+hc.clust.vs.diag
+```
+
+We can think in terms of TRUE positive, TRUE negative, FALSE positive and FALSE negative as we discussed back in an earlier class. Also recall that we discussed the concepts of sensitivity, specificity and ROC/AUC analysis.
+
+Sensitivity refers to a test's ability to correctly detect ill patients who do have the condition. In our example here the sensitivity is the total number of samples in the cluster identified as predominantly malignant (cancerous) divided by the total number of known malignant samples.
+
+Specificity relates to a test's ability to correctly reject healthy patients without a condition. In our example specificity is the proportion of benign (not cancerous) samples in the cluster identified as predominantly benign that are known to be benign.
+
+```{r}
+# Calculate sensitivity
+hc.M <- hc.clust.vs.diag[1, 2] # M for malignant
+TM <- sum(hc.clust.vs.diag[,2]) # TM for total malignant
+        
+hc.sensitivity <- hc.M / TM
+
+hc.sensitivity
+
+# Calculate specificity
+hc.B <- hc.clust.vs.diag[3, 1]
+TB <- sum(hc.clust.vs.diag[,1])
+
+hc.specificity <- hc.B / TB
+
+hc.specificity
+
+```
+
+# K-means clustering and comparing results
+
+Create a k-means model on wisc.data, assigning the result to wisc.km. Be sure to create 2 clusters, corresponding to the actual number of diagnosis. Also, remember to scale the data (with the scale() function and repeat the algorithm 20 times (by setting setting the value of the nstart argument appropriately). Running multiple times such as this will help to find a well performing model.
+
+```{r}
+wisc.km <- kmeans(wisc.data, centers= 2, nstart= 20)
+
+# compare to diagnosis
+km.clust.vs.diag<-table(wisc.km$cluster,diagnosis)
+km.clust.vs.diag
+```
+
+Q18. How well does k-means separate the two diagnoses? How does it compare to your hclust results?
+```{r}
+# Calculate sensitivity
+km.M <- km.clust.vs.diag[2, 2] # M for malignant
+
+km.sensitivity <- km.M / TM
+
+km.sensitivity
+
+# Calculate specificity
+km.B <- km.clust.vs.diag[1,1]
+
+km.specificity <- km.B / TB
+
+km.specificity
+
+# compare sensitivity
+hc.sensitivity > km.sensitivity
+
+# compare specificity
+hc.specificity < km.specificity
+
+# we can also compare the kmeans and hclust results using table
+table(wisc.hclust.clusters,wisc.km$cluster)
+
+```
+
+Looking at this table, it looks like clusters 1, 2, and 4 from the hierarchical clustering model can be interpreted as the cluster 1 equivalent from the k-means algorithm, and cluster 3 can be interpreted as the cluster 2 equivalent.
+
+# Combining methods
+## Clustering on PCA results
+
+Let's see if PCA improves or degrades the performance of hierarchical clustering.
+
+Using the minimum number of principal components required to describe at least 90% of the variability in the data, create a hierarchical clustering model with the linkage method="ward.D2". We use Ward's criterion here because it is based on multidimensional variance like principal components analysis. Assign the results to wisc.pr.hclust.
+
+```{r}
+# run hclust after calculating the distance matrix for the first 7 PCs
+wisc.pr.hclust <- hclust(dist(wisc.pr$x[,1:7]),method="ward.D2")
+plot(wisc.pr.hclust,col="light blue")
+
+grps <- cutree(wisc.pr.hclust, k=2)
+table(grps)
+
+# check against diagnosis
+table(grps, diagnosis)
+
+# reorder the factors so we make sure the colors are the same for both graphs below
+g <- as.factor(grps)
+levels(g)
+g <- relevel(g,2)
+levels(g)
+
+# color the PCA plot by these groups
+par(mfrow=c(1,2))
+plot(wisc.pr$x[,1:2], col=g,main="colored by pca>hclust")
+plot(wisc.pr$x[,1:2], col=diagnosis,main="colored by diagnosis")
+
+
+```
+
+ Lets be fancy and look in 3D with the rgl package we learned about in a previous class.
+ 
+```{r}
+library(rgl)
+plot3d(wisc.pr$x[,1:3], xlab="PC 1", ylab="PC 2", zlab="PC 3", cex=1.5, size=1, type="s", col=grps)
+rglwidget(width = 400, height = 400)
+```
+ 
+ Next cut the pca>hclust into two clusters
+```{r}
+wisc.pr.hclust.clusters <- cutree(wisc.pr.hclust, k=2)
+
+# Compare to actual diagnoses
+pc.hc.clust.vs.diag <- table(wisc.pr.hclust.clusters, diagnosis)
+pc.hc.clust.vs.diag
+
+# compare to previous hclust results
+table(wisc.hclust.clusters, diagnosis)
+
+# compare to kmeans results
+table(wisc.km$cluster, diagnosis)
+```
+ 
+ # Sensitivity/Specificity
+Which of your analysis procedures resulted in a clustering model with the best specificity? How about sensitivity?
+```{r}
+# calculate sensitivity = true positives
+pc.hc.M <- pc.hc.clust.vs.diag[1,2]
+pc.hc.sensitivity <- pc.hc.M / TM
+pc.hc.sensitivity
+
+# calculate specificity = true negatives
+pc.hc.B <- pc.hc.clust.vs.diag[2,1]
+pc.hc.specificity <- pc.hc.B / TB
+pc.hc.specificity
+
+# assemble a nice data table with sensitivity and specificity results
+
+results <- matrix(c(hc.sensitivity,km.sensitivity,pc.hc.sensitivity,hc.specificity,km.specificity,pc.hc.specificity),nrow=3,ncol=2)
+colnames(results) <- c("Sensitivity","Specificity")
+rownames(results) <- c("HClust","Kmeans","PCA > HClust")
+
+results
+
+```
+
+The best sensitivity (true positives) came from PCA > HClust method, whereas the best specificity (true negatives) came from the Kmeans.
+
+# Predictions
+We will use the predict() function that will take our PCA model from before and new cancer cell data and project that data onto our PCA space.
+
+```{r}
+url <- "https://tinyurl.com/new-samples-CSV"
+new <- read.csv(url)
+
+# predict the variance for each new point based on our PC model
+npc <- predict(wisc.pr, newdata=new)
+npc
+
+# make a plot of our data, color by groups from PCA > HClust method
+# red = malignant (cluster 1)
+plot(wisc.pr$x[,1:2], col=g)
+# add points for new data and color blue, with white text
+points(npc[,1], npc[,2], col="blue", pch=16, cex=3)
+text(npc[,1], npc[,2], c(1,2), col="white")
+```
+
+We would want to follow up with patient 2 (which is in the red/malignant cluster).
