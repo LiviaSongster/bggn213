@@ -1,0 +1,54 @@
+---
+title: "class06"
+author: "Livia"
+date: "10/18/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Class 6: R Functions
+This is my class 6 work. This will be **bold**.
+
+### This is R code, exploring read.table()
+
+```{r}
+# practice opening test text files to explore different types of read.table
+test1 <- read.table("test1.txt", sep=",",header=TRUE) 
+test1
+test2 <- read.table("test2.txt", sep="$",header=TRUE) 
+test2
+test3 <- read.table("test3.txt", sep="",header=FALSE) 
+test3
+```
+
+## Section 1: Improving analysis code by writing functions
+### Part A. Can you improve this analysis code?
+
+```{r}
+df <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA)
+df
+df$a <- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b <- (df$b - min(df$a)) / (max(df$b) - min(df$b))
+df$c <- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d <- (df$d - min(df$d)) / (max(df$d) - min(df$d)) 
+df
+```
+
+Here is my function that achieves the same output:
+
+```{r}
+# this will rescale one column that you input
+rescale <- function(x) {
+  (x - range(x)[1]) / (range(x)[2] - range(x)[1])
+}
+df <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA)
+df$a <- rescale(df$a)
+df
+
+```
+
+
+

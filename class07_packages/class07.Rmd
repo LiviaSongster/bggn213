@@ -1,0 +1,71 @@
+---
+title: "Class 07 Functions and Packages"
+author: "Livia Songster"
+date: "10/23/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Revisit our functions from last class
+Ctrl+Alt+i is the shortcut
+Here we can "source" an R script from a previous class (this one is posted online).
+```{r}
+source("http://tinyurl.com/rescale-R")
+```
+
+## Write a function both_na()
+
+We want to write a function, called both_na(), that counts how many positions in the two input vectors, x and y, have na values
+```{r}
+x <- c(1,2,NA,3,NA)
+y <- c(NA,3,NA,3,4)
+is.na(x)
+is.na(y)
+```
+```{r}
+# will output the positions of the na values
+which(is.na(x))
+which(is.na(y))
+```
+```{r}
+both_na<-function(x,y) {
+  if(length(x) != length(y)) {
+    stop("x and y are not the same length")
+  }
+  sum(is.na(x) & is.na(y))
+}
+
+both_na(x,y)
+```
+
+Write a grade function
+
+```{r}
+# student 1
+st1<- c(100, 100, 100, 100, 100, 100, 100, 90)
+# student 2
+st2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+
+grade <- function(data) {
+  data[is.na(data)] <- 0 # replace NAs with zero???
+  drop <- which.min(data)
+  gradethis <- data[-drop] # exclude the column specified by drop
+  print(mean(gradethis,na.rm=TRUE))
+}
+
+grade(st1)
+grade(st2)
+
+data <- read.csv("student_homework.csv")
+#transpose the data because my function will parse by column not row
+data2 <- data.frame(t(data[-1]))
+colnames(data2) <- data[, 1]
+
+lapply(data2,grade)
+
+
+```
+
