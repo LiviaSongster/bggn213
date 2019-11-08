@@ -2,7 +2,7 @@
 title: "Class 12 - structural bioinformatics part 2"
 author: "Livia Songster"
 date: "11/8/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -29,9 +29,67 @@ write.pdb(lig, file="1hsg_ligand.pdb")
 library(bio3d.view)
 library(rgl)
 view(prot)
-rglwidget()
+#rglwidget()
 
 view(lig)
-rglwidget()
+#rglwidget()
 ```
 
+# Inspecting my docking results
+I added hydrogens and charges to the protein and ligand using AutoDocTools from MGL, and then ran the protein and ligand through Autodock Vina.
+```{r}
+# convert .pdbqt to .pdb
+res <- read.pdb("all.pdbqt", multi=TRUE)
+write.pdb(res, "results.pdb")
+```
+Next I opened the results of the docking simulation and the original protein and ligand crystal structure in VMD and rendered .bmp files for each docking alignment (0-17 frames). I imported the image sequence into ImageJ and save the result as a gif (which is pushed to github). 
+
+Most of the simulated docks were not very close to the crystal structure, but the last one (17) looked pretty close to the crystal structure.
+
+# Assessing docking results quantitatively
+```{r}
+res <- read.pdb("all.pdbqt", multi=TRUE)
+ori <- read.pdb("ligand.pdbqt")
+# calculate the RMSD for the results of the docking vs. ligand alone
+rmsd(ori, res)
+which.min(rmsd(ori, res))
+mean(rmsd(ori, res))
+```
+
+The first docking simulation has the smallest RMSD, which is 0.649 angstroms from the crystal structure. The average RMSD is 8.73 angstroms.
+
+Next let's determine the RMSD for heavy atoms only.
+
+```{r}
+# select atoms that are not hydrogen
+res.noh <- atom.select(res,"noh",value=TRUE)
+ori.noh <- atom.select(ori,"noh",value=TRUE)
+# calculate RMSD
+rmsd(ori.noh, res.noh)
+which.min(rmsd(ori.noh, res.noh))
+mean(rmsd(ori.noh, res.noh))
+```
+
+The first simulation still has the lowest RMSD, and the mean RMSD without heavy atoms (no hydrogen) is 8.65 angstroms.
+
+# Normal Mode Analysis (NMA)
+Normal mode analysis (NMA) is one of the major simulation techniques used to probe largescale motions in biomolecules. Typical application is for the prediction of functional motions in proteins.
+
+Normal mode analysis (NMA) of a single protein structure can be carried out by providing a PDB object to the function nma(). In the code below we first load the Bio3D package and then download an example structure of hen egg white lysozyme (PDB id 1hel) with the function read.pdb(). Finally the function nma() is used perform the normal mode calculation:
+```{r}
+library(bio3d)
+# download hen egg white lysozyme
+pdb <- read.pdb("1HEL")
+# Calculate normal mode analysis
+modes <- nma(pdb)
+
+# plot the NMA results, where the pdb file provides sum of squared estimate of errors (SSE)
+par(mar=c(5.1,4.1,4.1,2.1))
+plot(modes, sse=pdb)
+
+# visualize NMA results in VMD
+# make trajectories of atomic displacements from NMA:
+mktrj(modes, mode=7, file="nma_7.pdb")
+```
+
+I looked at the results in VMD and saved a gif in this folder.
