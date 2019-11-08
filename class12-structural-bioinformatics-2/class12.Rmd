@@ -1,0 +1,37 @@
+---
+title: "Class 12 - structural bioinformatics part 2"
+author: "Livia Songster"
+date: "11/8/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Obtaining and inspecting our input structure
+
+```{r}
+library(bio3d)
+name <- get.pdb("1hsg")
+hiv <- read.pdb(name)
+hiv
+
+# trim to make protein-only and ligand-only objects
+prot <- trim.pdb(hiv, "protein")
+lig <- trim.pdb(hiv, "ligand")
+
+# save the objects to my directory
+write.pdb(prot, file="1hsg_protein.pdb")
+write.pdb(lig, file="1hsg_ligand.pdb")
+
+# check them in R
+library(bio3d.view)
+library(rgl)
+view(prot)
+rglwidget()
+
+view(lig)
+rglwidget()
+```
+
