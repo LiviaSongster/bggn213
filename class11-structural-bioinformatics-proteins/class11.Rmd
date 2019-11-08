@@ -1,0 +1,257 @@
+---
+title: "Class 11 - Structural Bioinformatics"
+author: "Livia Songster"
+date: "11/6/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Section 1 - PDB statistics
+Download CSV file from http://www.rcsb.org/
+
+“Analyze” -> “PDB Statistics” >
+“by Experimental Method and Molecular Type”
+
+```{r}
+PDBdata <- read.csv("DataExportSummary.csv",header=TRUE)
+PDBdata
+summary(PDBdata)
+```
+
+Q1A: proportion of structures solved by X-ray and electron microscopy
+
+```{r}
+# X ray
+(PDBdata[1,6] ) / sum(PDBdata[6]) * 100
+
+# EM
+(PDBdata[3,6] ) / sum(PDBdata[6]) * 100
+
+# print all of them
+ans <- PDBdata$Total / sum(PDBdata$Total) * 100
+names(ans) <- PDBdata$Experimental.Method
+round(ans,2)
+```
+
+Q1B: proportion of structures that are proteins
+
+```{r}
+# proteins only
+sum(PDBdata[2]) / sum(PDBdata[6]) * 100
+
+# all structure types
+ans2<- as.vector(colSums(PDBdata[2:5]))/sum(PDBdata[6]) * 100
+names(ans2) <- colnames(PDBdata[2:5])
+round(ans2,2)
+```
+
+Q2: Type HIV in the PDB website search box on the home page and determine how many
+HIV-1 protease structures are in the current PDB
+
+There are 3,048 published HIV structures in the current PDB.
+
+# Section 2 - tutorial in VMD 
+See other files...
+
+# Section 3 - Intro to Bio3D in R
+
+To read a single PDB file with Bio3D we can use the read.pdb() function. The minimal input required for this function is a specification of the file to be read. This can be either the file name of a local file on disc, or the RCSB PDB identifier of a file to read directly from the on-line PDB repository (shown here).
+```{r}
+library(bio3d)
+pdb <- read.pdb("1hsg")
+
+# summary of pdb file
+pdb
+```
+Q6. There are 198 amino acid residues and two nonprotein residues: HOH (wateR) and MK1 (idinavir anti-HIV drug)
+
+Next let's check the attributes of the pdb file.
+
+```{r}
+# list all attributes/objects within pdb
+attributes(pdb)
+
+# check the atom object within pdb
+head(pdb$atom)
+
+# Q7: check structure of pdb$atom
+str(pdb$atom)
+
+# Print a subset of $atom data for the first two atoms
+pdb$atom[1:2, c("eleno", "elety", "x","y","z")]
+
+# Note that individual $atom records can also be accessed like this
+pdb$atom$elety[1:2]
+
+# Which allows us to do the following
+plot.bio3d(pdb$atom$b[pdb$calpha], sse=pdb, typ="l", ylab="B-factor")
+
+# Print a summary of the coordinate data in $xyz
+pdb$xyz
+
+# Examine the row and column dimensions
+dim(pdb$xyz)
+
+# Print coordinates for the first two atoms
+pdb$xyz[1, atom2xyz(1:2) ]
+```
+
+# Section 4 - atom selection
+
+For example to select the indices for all C-alpha atoms we can use the following command:
+
+```{r}
+# Select all C-alpha atoms (return their indices)
+ca.inds <- atom.select(pdb, "calpha")
+ca.inds
+
+# Print details of the first few selected atoms
+head( pdb$atom[ca.inds$atom, ] )
+
+# And selected xyz coordinates
+head( pdb$xyz[, ca.inds$xyz] )
+```
+In addition to the common selection strings (such as ‘calpha’ ‘cbeta’ ‘backbone’ ‘protein’ ‘notprotein’ ‘ligand’ ‘water’ ‘notwater’ ‘h’ and ‘noh’) various individual atom properties can be used, and combined, for more fine grained selection.
+
+```{r}
+# Select chain A
+a.inds <- atom.select(pdb, chain="A")
+
+# Select C-alphas of chain A
+ca.inds <- atom.select(pdb, "calpha", chain="A")
+
+# We can combine multiple selection criteria to return their intersection
+cab.inds <- atom.select(pdb, elety=c("CA","CB"), chain="A",
+resno=10:20)
+cab.inds
+```
+
+PDB object trimming: output a protein only PDB file for viewing in VMD.
+```{r}
+proteinonly <- atom.select(pdb, "protein",value=TRUE)
+write.pdb(proteinonly,"1hsg-proteinonly.pdb")
+```
+
+Second object: ligand with residue name MK1 only
+```{r}
+mk1only <- atom.select(pdb, "ligand",value=TRUE)
+write.pdb(mk1only,"1hsg-mk1only.pdb")
+```
+
+# Section 5 - 3D structure viewing in R 
+The 'devtools' package allows us to install development versions
+
+install.packages("devtools")
+
+Also install the bio3d.view package from bitbucket
+
+devtools::install_bitbucket("Grantlab/bio3d-view")
+
+```{r}
+# Load the package
+library("bio3d.view")
+
+# The rglwidget() function from the rgl
+# package will show output in your Rmd
+# notebook and rendered html_output
+# documents
+library(rgl)
+
+
+# view the 3D structure
+view(pdb, "overview", col="sse")
+#rglwidget()
+
+# view 3D structure of mk1 only
+view(mk1only, "overview", col="sse")
+#rglwidget()
+
+# view protein only
+view(proteinonly, "overview", col="sse")
+#rglwidget()
+
+```
+
+Next we can run a normal mode analysis to predict the major motions of biomolecules. This takes some time to run.
+```{r}
+# Load the pdb file
+pdb <- read.pdb("1hel")
+# Normal mode analysis calculation with nma()
+modes <- nma(pdb)
+# next apply this calculation to the pdb file and normal calculated atom trajectories
+m7 <- mktrj(modes,
+ mode=7,
+ file="mode_7.pdb")
+
+# view the NMA calculation
+view(m7, col=vec2color( rmsf(m7) ))
+```
+
+# Section 6 - working with multiple PDB files
+
+For this section, I downloaded muscle.exe into my current RStudio project directory on terminal.
+
+Next let's download example PDB files and align them. The get.pdb() function will download the requested files. Argument split = TRUE requests further that we want to extract particular chains, i.e. those specified by the _A suffix of each PDB ID in the example above. 
+
+```{r}
+# Download some example PDB files
+ids <- c("1TND_B","1AGR_A","1TAG_A","1GG2_A","1KJY_A","4G5Q_A")
+files <- get.pdb(ids, split = TRUE)
+
+# Extract and align the chains we are interested in
+pdbs <- pdbaln(files, fit = TRUE)
+
+# Print to screen a summary of the 'pdbs' object
+pdbs
+
+#  Access the first 5 rows, and 8 columns
+pdbs$ali[1:5, 1:8]
+
+# Associated residues numbers
+pdbs$resno[1:5, 1:8]
+
+# access row names/pdb names
+basename.pdb(pdbs$id)
+```
+
+# 6.3 Basic structure analysis
+Having the generated pdbs object at hand facilitates a range of possibilities for protein structure analysis. This includes sequence identity/similarity, structural deviation, rigid core identification as well as principal component and normal mode analysis. Several Bio3D function are specifically designed to operate on the pdbs object, including functions seqidentity(), rmsd(), pca(), core.find(), nma() and many others.
+
+
+Below we calculate the pairwise sequence identity between the structures of the pdbs ensemble followed by the root mean square deviation (RMSD):
+```{r}
+# Calculate sequence identity
+seqidentity(pdbs)
+
+# Calculate RMSD
+rd <- rmsd(pdbs)
+rd
+# Clustering
+hc <- hclust(as.dist(rd))
+grps <- cutree(hc, k=3)
+# Plot results as dendrogram
+hclustplot(hc, k=3)
+```
+
+# Principal component analysis on multiple protein structures
+
+```{r}
+# Perform PCA
+pc.xray <- pca(pdbs)
+# Plot our results summary (PCA score plot and scree-plot)
+plot(pc.xray)
+
+# Visualize first principal component
+pc1 <- mktrj(pc.xray, pc=1, file="pc_1.pdb")
+
+# view it in R
+library("bio3d.view")
+# Structural displacements captured by PC1
+view(pc1)
+#rglwidget()
+
+```
