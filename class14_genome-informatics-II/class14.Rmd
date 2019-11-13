@@ -1,0 +1,289 @@
+---
+title: "Class 14 - Transcriptomics and RNA-Seq Analysis"
+author: "Livia Songster"
+date: "11/13/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import countData and colData
+
+```{r}
+# read in countData
+counts <- read.csv("airway_scaledcounts.csv", stringsAsFactors = FALSE)
+# read in metadata/colData
+metadata <-  read.csv("airway_metadata.csv", stringsAsFactors = FALSE)
+
+# check out the tables
+head(counts)
+head(metadata)
+```
+
+# Perform some exploratory differential gene expression analysis
+Note: for demonstration only!!!
+
+```{r}
+# find control cell lines
+control <- metadata[metadata[,"dex"]=="control",]
+# find mean for all control cell lines
+control.mean <- rowSums( counts[ ,control$id] )/4 
+# add gene names
+names(control.mean) <- counts$ensgene
+# repeat for treated cell lines
+treated <- metadata[metadata[,"dex"]=="treated",]
+treated.mean <- rowSums( counts[ ,treated$id] )/4 
+names(treated.mean) <- counts$ensgene
+
+# We will combine our meancount data for bookkeeping purposes.
+meancounts <- data.frame(control.mean, treated.mean)
+# Directly compare sum of mean counts across all genes for each group
+colSums(meancounts)
+
+# create scatter plot showing mean of treated samples vs. control samples
+plot(meancounts$control.mean,meancounts$treated.mean)
+
+# add log scale for both axes
+plot(meancounts$control.mean,meancounts$treated.mean,log="xy")
+```
+
+Identify candidate differentially expressed genes by looking for large fold change between control and dex-treated samples (log2foldchange)
+
+```{r}
+# calculate log2 fold change
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/meancounts[,"control.mean"])
+head(meancounts)
+
+# filter our data to remove NaN and -Inf results
+# find which rows and columns have a mean count of zero
+zero.vals <- which(meancounts[,1:2]==0, arr.ind=TRUE)
+# identify which rows are unique (in case there are duplicates)
+to.rm <- unique(zero.vals[,1])
+# now exclude these rows from meancounts
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+```
+A common threshold used for calling something differentially expressed is a log2(FoldChange) of greater than 2 or less than -2. Let’s filter the dataset both ways to see how many genes are up or down-regulated.
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+# count how many upregulated genes there are
+table(up.ind)
+# now count downregulated genes
+table(down.ind)
+
+```
+
+# Adding annotation data (metadata)
+We can add annotation from a supplied CSV file, such as those available from ENSEMBLE or UCSC. The annotables_grch38.csv annotation table links the unambiguous Ensembl gene ID to other useful annotation like the gene symbol, full gene name, location, Entrez gene ID, etc.
+
+```{r}
+anno <- read.csv("annotables_grch38.csv")
+head(anno)
+
+# merge annotations and counts by gene ID (ensgene) and row names (0)
+anno.mycounts <- merge(x=anno,y=mycounts,by.x="ensgene",by.y=0)
+```
+
+In cases where you don't have a preferred annotation file at hand you can use other Bioconductor packages for annotation.
+
+Bioconductor's annotation packages help with mapping various ID schemes to each other. Here we load the AnnotationDbi package and the annotation package org.Hs.eg.db.
+
+```{r}
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+```
+
+This is the organism annotation package ("org") for Homo sapiens ("Hs"), organized as an AnnotationDbi database package ("db"), using Entrez Gene IDs ("eg") as primary key. To get a list of all available key types, use:
+```{r}
+columns(org.Hs.eg.db)
+# We can use the mapIds() function to add individual columns to our results table.
+mycounts$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(mycounts), # Our gene names
+                     keytype="ENSEMBL",        # The format of our gene names
+                     column="SYMBOL",          # The new format we want to add
+                     multiVals="first")        # Return the first value in the database
+
+head(mycounts)
+
+# Now run the mapIds() function two more times to add the Entrez ID and UniProt accession as new columns called mycounts$entrez and mycounts$uniprot
+mycounts$entrez <- mapIds(org.Hs.eg.db,
+                     keys=row.names(mycounts), 
+                     keytype="ENSEMBL", 
+                     column="ENTREZID", 
+                     multiVals="first")
+mycounts$uniprot <- mapIds(org.Hs.eg.db,
+                     keys=row.names(mycounts), 
+                     keytype="ENSEMBL", 
+                     column="UNIPROT", 
+                     multiVals="first")
+
+head(mycounts)
+
+```
+
+Examine the annotated results for those genes with a log2(FoldChange) of greater than 2 (or less than -2 if you prefer)
+```{r}
+# View( mycounts[up.ind,] )
+# View( mycounts[down.ind,] )
+```
+
+There are several genes that have NA gene symbols/uniprot/entrez annotations.
+
+# DESeq2 analysis
+Proper differential expression analysis: load DESeq2 and check the citation.
+```{r}
+library(DESeq2)
+citation("DESeq2")
+```
+
+DESeq works on a particular type of object called a DESeqDataSet. The DESeqDataSet is a single object that contains input values, intermediate calculations like how things are normalized, and all results of a differential expression analysis.
+
+I can construct a DESeqDataSet from (1) a count matrix, (2) a metadata file, and (3) a formula indicating the design of the experiment.
+
+A design formula tells DESeq2 which columns in the sample information table (colData) specify the experimental design (i.e. which groups the samples belong to) and how these factors should be used in the analysis. Essentially, this formula expresses how the counts for each gene depend on the variables in colData.
+
+In the metadata object, I am interested in the dex column, which tells us which samples are treated with dexamethasone versus which samples are untreated controls.
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, # define counts (raw reads)
+                              colData=metadata, # define metadata (originally loaded)
+                              design=~dex,      # design formula; in this case, control vs. treated
+                              tidy=TRUE)
+dds
+```
+
+# DESeq pipeline
+dds is a bare-bones DESeqDataSet. The DESeq() function takes a DESeqDataSet and returns a DESeqDataSet, but with lots of other information filled in (normalization, dispersion estimates, differential expression results, etc). Notice how if we try to access these objects before running the analysis, nothing exists.
+```{r}
+sizeFactors(dds)
+dispersions(dds)
+```
+
+Run DEseq() on dds: This function calls a number of other functions within the package to essentially run the entire pipeline (normalizing by library size by estimating the "size factors," estimating dispersion for the negative binomial model, and fitting models and getting statistics for each gene for the design specified when you imported the data).
+```{r}
+dds <- DESeq(dds)
+# check the results
+res <- results(dds)
+res <- as.data.frame(res)
+head(res)
+summary(res)
+# order results by smallest p value
+resOrdered <- res[order(res$pvalue),]
+head(resOrdered)
+```
+The results function contains a number of arguments to customize the results table. By default the argument alpha is set to 0.1. If the adjusted p value cutoff will be a value other than 0.1, alpha should be set to that value:
+```{r}
+res05 <- results(dds, alpha=0.05)
+summary(res05)
+
+```
+
+We can also subset the original results table to only include values within our p value cutoff
+```{r}
+resSig05 <- subset(as.data.frame(res), padj < 0.05)
+nrow(resSig05)
+```
+
+
+```{r}
+resSig01 <- results(dds, alpha=0.01)
+summary(resSig01)
+nrow(resSig01)
+# add annotations
+resSig01$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(resSig01),
+                     keytype="ENSEMBL",
+                     column="SYMBOL",
+                     multiVals="first")
+head(resSig01)
+# order by pvalues
+ord <- order( resSig01$padj )
+#View(res01[ord,])
+head(resSig01[ord,])
+
+# write out the results
+write.csv(resSig01[ord,], "signif01_results.csv")
+```
+
+# Data visualization - volcano plots
+
+These summary figures are frequently used to highlight the proportion of genes that are both significantly regulated and display a high fold change. 
+
+Typically these plots shows the log fold change on the X-axis, and the −log10 of the p-value on the Y-axis (the more significant the p-value, the larger the −log10 of that value will be). A very dull (i.e. non colored and labeled) version can be created with a quick call to plot() like so:
+
+```{r}
+plot( res$log2FoldChange,  -log(res$padj), 
+      xlab="Log2(FoldChange)",
+      ylab="-Log(P-value)")
+```
+
+To make this more useful we can add some guidelines (with the abline() function) and color (with a custom color vector) highlighting genes that have padj<0.05 and the absolute log2FoldChange>2.
+```{r}
+plot( res$log2FoldChange,  -log(res$padj), 
+ ylab="-Log(P-value)", xlab="Log2(FoldChange)")
+
+# Add some cut-off lines
+abline(v=c(-2,2), col="darkgray", lty=2)
+abline(h=-log(0.05), col="darkgray", lty=2)
+```
+
+To color the points we will setup a custom color vector indicating transcripts with large fold change and significant differences between conditions:
+```{r}
+# Setup our custom point color vector 
+mycols <- rep("gray", nrow(res))
+mycols[ abs(res$log2FoldChange) > 2 ]  <- "red" 
+
+inds <- (res$padj < 0.01) & (abs(res$log2FoldChange) > 2 )
+mycols[ inds ] <- "blue"
+
+# Volcano plot with custom colors 
+plot( res$log2FoldChange,  -log(res$padj), 
+ col=mycols, ylab="-Log(P-value)", xlab="Log2(FoldChange)" )
+
+# Cut-off lines
+abline(v=c(-2,2), col="gray", lty=2)
+abline(h=-log(0.1), col="gray", lty=2)
+```
+
+For more customization, we can use the EnhancedVolcano bioconductor package. First add gene symbols to the results object using mapIDs so we can label interesting genes.
+```{r}
+x <- as.data.frame(res)
+x$symbol <- mapIds(org.Hs.eg.db, 
+                   keys=row.names(x),
+                   keytype="ENSEMBL",
+                   column="SYMBOL",
+                   multiVals="first")
+library(EnhancedVolcano)
+EnhancedVolcano(x,
+    lab = x$symbol,
+    x = 'log2FoldChange',
+    y = 'pvalue')
+```
+
+# Plotting counts
+ESeq2 offers a function called plotCounts() that takes a DESeqDataSet that has been run through the pipeline, the name of a gene, and the name of the variable in the colData that you're interested in, and plots those values. 
+```{r}
+# find the data for the gene CRISPLD2
+i <- grep("CRISPLD2", resSig01$symbol)
+resSig01[i,]
+# find gene ID
+rownames(resSig01[i,])
+# plot the counts, where our intgroup, or "interesting group" variable is the "dex" column.
+plotCounts(dds, gene="ENSG00000103196", intgroup="dex")
+```
+
+Let's return the data as an object so we can pipe it into ggplot and make a boxplot.
+```{r}
+d <- plotCounts(dds, gene="ENSG00000103196", intgroup="dex", returnData=TRUE)
+head(d)
+# base R boxplot
+boxplot(count ~ dex , data=d)
+
+# ggplot boxplot
+library(ggplot2)
+ggplot(d, aes(dex, count)) + geom_boxplot(aes(fill=dex)) + scale_y_log10() + ggtitle("CRISPLD2")
+```
+
