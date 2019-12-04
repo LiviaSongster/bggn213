@@ -1,0 +1,152 @@
+---
+title: "Class 18 - Cancer Genomics"
+author: "Livia Songster"
+date: "11/27/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# The GenomicDataCommons R package
+
+We will first use functions from the GenomicDataCommons package to identify and then fetch, using the TCGAbiolinks package, somatic variant results from the NCI-GDC and then provide a high-level assessment of those variants using the maftools package. The later package works with Mutation Annotation Format or MAF format files used by GDC and others to store somatic variants.
+
+The workflow will be:
+
+- Install packages if not already installed
+- Load libraries
+- Identify and download somatic variants for a representative TCGA dataset, in this case pancreatic adenocarcinoma.
+- Use maftools to provide rich summaries of the data.
+
+```{r}
+library(GenomicDataCommons)
+library(TCGAbiolinks)
+library(maftools)
+
+# Now lets check on GDC status:
+status()
+```
+
+# Querying the GDC from R
+The are four main sets of metadata that we can query, namely projects(), cases(), files(), and annotations(). We will start with projects()
+```{r}
+projects <- getGDCprojects()
+head(projects)
+# View(projects)
+
+# find the number of cases/patients across different projects within the GDC):
+cases_by_project <- cases() %>%
+  facet("project.project_id") %>%
+  aggregations()
+head(cases_by_project)
+# View(cases_by_project)
+
+# Make a barplot of the cases per project with a log scale for the y axis and rotate axis labels
+x <- cases_by_project$project.project_id
+
+# Make a custom color vector for our plot
+colvec <- rep("lightblue", nrow(x))
+colvec[34] <- "red"
+
+# Plot with 'log' for y axis and rotate labels with 'las'
+#par(___)  
+barplot(x$doc_count, names.arg=x$key, log="y", col=colvec, las=2)
+
+# We can use the getSampleFilesSummary() function to determine for a given project how many cases and what type of data we have available for each case:
+
+samp <- getSampleFilesSummary("TCGA-PAAD")
+head(samp)
+
+# find all gene expression data files for all pancreatic cancer patients
+
+query <- GDCquery(project="TCGA-PAAD",
+                  data.category="Transcriptome Profiling",
+                  data.type="Gene Expression Quantification")
+
+ans <- getResults(query)
+head(ans)
+nrow(ans)
+```
+
+# Variant analysis with R
+```{r}
+maf.file <- GDCquery_Maf(tumor="PAAD", pipelines = "mutect")
+head(maf.file)
+write.csv(maf.file,"TCGA-PAAD-somatic-mutation-MAF.csv")
+
+# maf analysis
+vars = read.maf(maf = maf.file, verbose = FALSE)
+```
+
+# Plotting MAF summary and drawing oncoplots
+```{r}
+pdf("MafSummary.pdf")
+plotmafSummary(vars)
+dev.off()
+# Oncoplot for our top 10 most frequently mutated genes
+pdf("oncoplot_panc.pdf")
+oncoplot(maf = vars, top = 10, fontSize = 12)
+dev.off()
+# make an Oncostrip
+oncostrip(maf=vars, genes=c("KRAS", "TP53"))
+# focus on kras and make lollipop plot
+lollipopPlot(vars, gene='KRAS')
+# TP53 lollipop plot
+lollipopPlot(vars, gene='TP53')
+
+```
+
+# Part 2: Protein sequences from healthy and tumor tissue
+Q1: Identify sequence regions that contain all 9-mer peptides that are only found in the tumor. Hint: You will need to first identify the sites of mutation in the above sequences and then extract the surrounding subsequence region. This subsequence should encompass all possible 9-mers in the tumor derived sequence. In other words extract the subsequence from 8 residues before and 8 residues after all point mutations in the tumor sequence.
+```{r}
+library(bio3d)
+seqs <- read.fasta("lecture18_sequences.fa")
+seqs
+## Calculate positional identity scores
+ide <- conserv(seqs$ali, method="identity")
+mutant.sites <- which(ide < 1) 
+
+## Exclude gap possitions from analysis
+gaps <- gap.inspect(seqs)
+mutant.sites <- mutant.sites[mutant.sites %in% gaps$f.inds]
+
+mutant.sites
+
+## Make a "names" label for our output sequences (one per mutant)
+mutant.names <- paste0(seqs$ali["P53_wt",mutant.sites],
+                       mutant.sites,
+                       seqs$ali["P53_mutant",mutant.sites])
+
+mutant.names
+
+## Sequence positions surounding each mutant site
+start.position <- mutant.sites - 8
+end.position <-  mutant.sites + 8
+
+# Blank matrix to store sub-sequences
+store.seqs <- matrix("-", nrow=length(mutant.sites), ncol=17)
+rownames(store.seqs) <- mutant.names
+
+## Extract each sub-sequence
+for(i in 1:length(mutant.sites)) {
+  store.seqs[i,] <- seqs$ali["P53_mutant",start.position[i]:end.position[i]]
+}
+
+store.seqs
+
+## First blank out the gap positions 
+store.seqs[store.seqs == "-"] <- ""
+
+## Output a FASTA file for further analysis
+write.fasta(seqs=store.seqs, ids=mutant.names, file="subsequences.fa")
+```
+Q2: Identify 9-mer peptides in the identified sequence regions unique to the tumor that can be potentially presented to T cells. Hint: Use the IEDB HLA binding prediction server above to identify the top ranked 9-mer peptides for each patient HLA (see above for HLA typing results).
+
+```{r}
+
+```
+
+
+Q3: Identify the top peptide for each patient HLA allele (see above). Hint: You can download a CSV formated result file for all predictions and use R or a spreadsheet application to identify the top ranked peptides for each allele. Which approach would you rather use if you were going to scale to 100s of analysis tasks?
