@@ -1,0 +1,130 @@
+CLUSTAL multiple sequence alignment by MUSCLE (3.8)
+
+
+Beluga_Whale_(D.leucas)               -MSETVVCSSRATVMLYDDSNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGRKMQPDQQ
+Water_Buffalo_(B.bubalis)             -MSETVVCTSRATVMLYDDSNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGRKMQPDQQ
+Prairie_Vole_(M.ochrogaster)          -MSETVICSSRATVMLYDDSNKRWLPAGPGPQAFSRVQIYHNPTANSFRVVGRKLQPDQQ
+American_Pika_(O.princeps)            -MSETVVCTSRATVMLYDDGNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGRKMQPDQQ
+Black_Flying_Fox_(P.alecto)           -MSETVICSSRATVMLYDDGNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGRKMQPDQQ
+Human_(H.sapiens)                     MSSETVICSSRATVMLYDDGNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGRKMQPDQQ
+Domestic_Cat_(F.catus)                -MSETVICSSWATVMLYDDTNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGWKMQPDQQ
+Canada_Lynx_(L.canadensis)            -MSETVICSSWATVMLYDDTNKRWLPAGTGPQAFSRVQIYHNPTANSFRVVGWKMQPDQQ
+Brown_Trout_(S.trutta)                -MSESSTCQARATVMIYDDGNKKWLPAGTGPQNFSRVQIYHNPSTNAFRVVGRKMQTDQQ
+Javanese_Ricefish_(O.javanicus)       -MSESSICQARATVMVYDDANKKWLPAGAGPQTFSRVQIYHNPTNNAFRVVGRKMQTDQQ
+Goldfish_(C.auratus)                  MYSESSICQARATVMIYNDADKKWVPAGTGAQAFSRVQIYHNPSINGFRVVGRKMQADQQ
+Eastern_Happy_(A.calliptera)          -MSESSICQARATVMIYDDGNKKWLPAGTGPQTFSRVQIYHNPSNNAFRVVGRKMQTDQQ
+Zebrafish_(D.rerio)                   -MSESSICQARATVMIYDDGSKKWVPAGTGPQAFSRVQIYHNPTNNAFRVVGRKMQTDQQ
+Chinese_Giant_Salamander_(A.davi      --SESSICQARATVMIYDDGNKKWVPAGTGPQAFSRVQIYHNPGNNAFRVVGRKMQTDQQ
+                                        **:  * :.****:*:* .*.*:***.*.* **********  *.*****.*:*.***
+
+Beluga_Whale_(D.leucas)               VVINCAIVRGVKYNQATPNFHQWRDARQVWGLNFGSKEDATQFAAGMASALEALEGGG--
+Water_Buffalo_(B.bubalis)             VVINCAIVRGVKYNQATPNFHQWRDARQVWGLNFGSKEDATQFANGMASALEALEGGG--
+Prairie_Vole_(M.ochrogaster)          VVINCAIIRGVKYNQATPIFHQWRDARQVWGLNFGSKEDAAQFAAGMASALEALEGGG--
+American_Pika_(O.princeps)            VVINCAIVRGVKYNQATPNFHQWRDARQVWGLNFSSKEDAAQFAAGMAEALEALEGGA--
+Black_Flying_Fox_(P.alecto)           VVINCAIIRGLKYNQATPNFHQWRDARQVWGLNFGSKEDAAQFAAGMASALEALEGGGPP
+Human_(H.sapiens)                     VVINCAIVRGVKYNQATPNFHQWRDARQVWGLNFGSKEDAAQFAAGMASALEALEGGG--
+Domestic_Cat_(F.catus)                VVINCAIVRGIKYNQATPSFHQWRDARQVWGLNFGSKEDAAQFAAGMASALEALEGGG--
+Canada_Lynx_(L.canadensis)            VVINCAIVRGIKYNQATPSFHQWRDARQVWGLNFGSKEDAAQFAAGMASALEALEGGG--
+Brown_Trout_(S.trutta)                VVINCPIVKGLKYNEATPNFHQWRDTRQVWGLNFGSKEDAALFANGIAHALEVLNSLSDA
+Javanese_Ricefish_(O.javanicus)       VVINCPIVRGLKYNQATPNFHQWRDARQVWGLNFGSKEDAALFANGMSHALDVLNSMPDA
+Goldfish_(C.auratus)                  VVINCPIVKGLKYNQATPNFHQWRDARQVWGLNFGTKEDAVLFANGMTHALEVLNSSSDG
+Eastern_Happy_(A.calliptera)          VVINCPIIRGLKYNQATPNFHQWRDARQVWGLNFGSKEDAALFANGMSHALEVLNSMADA
+Zebrafish_(D.rerio)                   VVINCPIVKGLKYNQATPNFHQWRDARQVWGLNFGSKEDAALFANGMMHALDVLSSIPDG
+Chinese_Giant_Salamander_(A.davi      VVMNCPIVKGLKYNQATPNFHQWRDARQVWGLNFGSKEDAALFANGMIHALEILNSSPDG
+                                      **:**.*:.*:***:*** ******:********.:****. ** *:  **: *..    
+
+Beluga_Whale_(D.leucas)               --PPPPPTLPTAPPTWSVQNGPSPEEMEQQKRQQQ--SELMERERRVSNAG---------
+Water_Buffalo_(B.bubalis)             --PPPPPP-PTAPPTWSAQNGPSPEEMEQQKRQQQ--SELMERERRASNAG---------
+Prairie_Vole_(M.ochrogaster)          --PPPAPA----PPAWSAQNGPSPEEVEQQKRQ----PEHM--ERRVSNAG---------
+American_Pika_(O.princeps)            --PPGPPA-PPTPATWASQNGPSPEELEQQKRQQ---PEHM--ERRVSNAGDWACS----
+Black_Flying_Fox_(P.alecto)           AAPPPPQP-PAGPPTWSVQNGPSPEEAEQHKRQ----PEHMERERRVSNAG---------
+Human_(H.sapiens)                     --PPPPPA----LPTWSVPNGPSPEEVEQQKRQQPGPSEHI--ERRVSNAG---------
+Domestic_Cat_(F.catus)                --PPPPPP-PAAPSTWSVQNGPAPEEVEQQKRQPPGPPEHM--ERRVSNAG---------
+Canada_Lynx_(L.canadensis)            --PPPPPP-PAAPSTWSVQNGPAPEEVEQQKRQPPGPPEHM--ERRVSNAG---------
+Brown_Trout_(S.trutta)                GYATLPRP---------VSNGPSPEELEQQRRLEQQRLEQQETERQERQEW-------ER
+Javanese_Ricefish_(O.javanicus)       GYATLPRP---------VSNGPSPEELEQQRRLEQQRSEQIERERQERERQEFERQERER
+Goldfish_(C.auratus)                  GYPTRP-----------VSNGPSPEELEQQRRLEQQRMEQLEREKQERERQERERQERER
+Eastern_Happy_(A.calliptera)          GYATLPRP---------MSNGPSPEELEQQRRLEQQRLEQQDRERQERERQERERQERER
+Zebrafish_(D.rerio)                   GYSARP-----------VSNGPSPEELEQQRRLEQQRLEQQERERLERERQ---------
+Chinese_Giant_Salamander_(A.davi      GFSTRP-----------VSNGPSLEELEQQKRLEQQRLEQLER-----------------
+                                        .. .             ***: ** **:.*      *                     
+
+Beluga_Whale_(D.leucas)               ------------GPAAPPA--GGPPPPPGPPPPPGPPPAPGLSS-SGISAGGHGAGGGPP
+Water_Buffalo_(B.bubalis)             ------------GPPAPPA--GAPPPPPGPPPPPGPPPPPGLSS-SGVSAATQGAGGGPP
+Prairie_Vole_(M.ochrogaster)          ------------APPTPQA--GGPPPPPGPPPPPGPPPPPGLPP-SGVSAAGHGAGGAPP
+American_Pika_(O.princeps)            ------------GPPAPPV--GGPPPPPGPPPPPGPPPPPGLPP-SGVSAAGHGAGGGPP
+Black_Flying_Fox_(P.alecto)           ------------GPPAPPA--GGPPPPPGPPPPPGPPPPPGLPP-SGVSAVGHGAGGGPP
+Human_(H.sapiens)                     ------------GPPAPPA--GGPPPPPGPPPPPGPPPPPGLPP-SGVPAAAHGAGGGPP
+Domestic_Cat_(F.catus)                ------------GPPAPPA--GGPPPPPGPPPPPGPPPPPGVSP-SGVSAAGHGAGGGPP
+Canada_Lynx_(L.canadensis)            ------------GPPAPPA--GGPPPPPGPPPPPGPPPPPGVSP-SGVSAAGHGAGGGPP
+Brown_Trout_(S.trutta)                LERERQAAAVPAAPLAPPA-PQGPPPPPGPPPS-GPPPPPGPPP-PGPPA----AGSGPP
+Javanese_Ricefish_(O.javanicus)       LERERQAAPVH-IPPAPPMAPGGPPPPPAPPPPPGPPPAAGIPPPPGPPP------SGPP
+Goldfish_(C.auratus)                  QAASV-------IPPAPPLAPGGPPPPPGPPPPPGPPPSGPPPP-PGPPPMGGGAP--PP
+Eastern_Happy_(A.calliptera)          LERERQAAAVPPAPPAPPLATGGPAPPPAPPPPPGPPPAPAPPPAAGIPPPPGPPPTGPP
+Zebrafish_(D.rerio)                   ------------------------------------------------------------
+Chinese_Giant_Salamander_(A.davi      ------------------------------------------------------------
+                                                                                                  
+
+Beluga_Whale_(D.leucas)               PAPPLPTAQGPSG--GGT------GAPGLAAAIAGAKLRKVSKQEEASGGP---------
+Water_Buffalo_(B.bubalis)             PAPPLPTAQGPSG--GGT------GAPSLASAIAGAKLRKVSK-EEASAGP---------
+Prairie_Vole_(M.ochrogaster)          PAPPLPTAQGPSG--GGS------GATGLAAAIAGAKLRKVSKQEEASGGP---------
+American_Pika_(O.princeps)            PAPPLPTAQGPSG--GGT------GAPGLAAAIAGAKLRKVSKQEEASGGP---------
+Black_Flying_Fox_(P.alecto)           PPPPLPTAAGPSG--GGT------GAPGLAAAIAGAKLRKVSKQEEASGGP---------
+Human_(H.sapiens)                     PAPPLPAAQGPGG--GGA------GAPGLAAAIAGAKLRKVSK-EEASGGP---------
+Domestic_Cat_(F.catus)                PAPPLPTAQGPSG--GGT------GAPGLAAAIAGAKLRKVSKQEEASGGP---------
+Canada_Lynx_(L.canadensis)            PAPPLPTAQGPSG--GGT------GAPGLAAAIAGAKLRKVSKQEEASGGP---------
+Brown_Trout_(S.trutta)                PAPPLPSPGGDGG--LGG------GAGGLAAALAGAKLRRVAKDDSGSGAV------AAT
+Javanese_Ricefish_(O.javanicus)       PAPPLPAPGGGGG--GGGGDGGGGGGGGLAAALAGAKLRKVSKQEDGGSTP---------
+Goldfish_(C.auratus)                  PAPPLPSSGGGGGERGGP------GDGGLAAALAGAKLRKVPKDDAGSGGGGGGSSAAAS
+Eastern_Happy_(A.calliptera)          PAPPLPTSDGGNGIGGGG----GGAGGGLAAALAGAKLRKVSKDDGPSAPQ--------T
+Zebrafish_(D.rerio)                   ------------------------------------------------------------
+Chinese_Giant_Salamander_(A.davi      ------------------------------------------------------------
+                                                                                                  
+
+Beluga_Whale_(D.leucas)               --LAPKVESSRS----------------TGGGLMEEMNAMLARRRKATQVGEK-TAKDES
+Water_Buffalo_(B.bubalis)             --VAPKAESSRS----------------TGGGLMEEMNAMLARRRKATQVGEK-PAKDES
+Prairie_Vole_(M.ochrogaster)          --LAPKAESSRS-----------------TGGLMEEMNAMLARRRKATQVGEK-PPKDES
+American_Pika_(O.princeps)            --LGPKAESGRS---------------TGGGGLMEEMNAMLARRRKATQVGEK-PPKDES
+Black_Flying_Fox_(P.alecto)           --SAPKAESSRS----------------TGGGLMEEMNAMLARRRKATLVGEK-PPKDES
+Human_(H.sapiens)                     --TAPKAESGRS----------------GGGGLMEEMNAMLARRRKATQVGEK-TPKDES
+Domestic_Cat_(F.catus)                --SAPKADSGRS----------------TGGGLMEEMNAMLARRRKATQVGEK-PPKDES
+Canada_Lynx_(L.canadensis)            --SAPKADSGRS----------------TGGGLMEEMNAMLARRRKATQVGEK-PPKDES
+Brown_Trout_(S.trutta)                AAPAAKPDQSRT-------SASIGGGGGGGGGLMGEMASILARRKKMADGGAK-PP---A
+Javanese_Ricefish_(O.javanicus)       --PISRSDPSRSSTASISGGGGGGGGGGGGGGLMGEMSAILARRRKAANTGEK-PPP--V
+Goldfish_(C.auratus)                  VAPAPKADSNRS----------SVSMPSGGGGLMGEMSAILARRRKAADKGEKAPPKPEE
+Eastern_Happy_(A.calliptera)          PTPVSRTESTRS-------SNASIGGGGGGGGLMGEMSAILARRRKAADTGEK-PP---V
+Zebrafish_(D.rerio)                   ------------------------------------------------------------
+Chinese_Giant_Salamander_(A.davi      ------------------------------------------------------------
+                                                                                                  
+
+Beluga_Whale_(D.leucas)               ANQEEPEARVPAHSESV-RRPWEKNSTTL------------PRMKSSSSVTTSEAQPSTP
+Water_Buffalo_(B.bubalis)             ANQEESDARVPAHSESV-RRPWEKNSTTL------------PRMKSSSSVTTSEAHPPTP
+Prairie_Vole_(M.ochrogaster)          ASQEEPEARVPAQSEPV-RRPWEKNSTTL------------PRMKSSSSVTTSEAHPPAP
+American_Pika_(O.princeps)            ASQEEPEARIPAHSESV-RRPWEKNSTTL------------PRMKSSSSVATSDVHPPTP
+Black_Flying_Fox_(P.alecto)           ANQEEPEARVPAHSEPV-RRPWEKNSTTL------------PRMKSSSSVTTSEAHAPTP
+Human_(H.sapiens)                     ANQEEPEARVPAQSESV-RRPWEKNSTTL------------PRMKSSSSVTTSETQPCTP
+Domestic_Cat_(F.catus)                ANQEEPEARVPAQSESV-RRPWEKNSTTL------------PRMKSSSSVTTSEAHPSTP
+Canada_Lynx_(L.canadensis)            ANQEEPEARVPAQSESV-RRPWEKNSTTL------------PRMKSSSSVTTSEAHPSTP
+Brown_Trout_(S.trutta)                KMADNDDSESQGQSDTLGRRPWEKSATMP-------------------RVKPAGANNDA-
+Javanese_Ricefish_(O.javanicus)       KTQDNDDSDTQGQVDAP-RRPWEKP-SMVRNNSIPKSMDSTPSLSQVLRTKGAGNNNDS-
+Goldfish_(C.auratus)                  PNNDDSETQGPGE---F-KRPWEKSATMPRTNSAPRGLESPSSSSPITRMKPNSQSAEPE
+Eastern_Happy_(A.calliptera)          KPQDNDESESPSQSDAV-RRPWEKP-SMIRNNSIPKSMDSTSSLSQVPRAKAASNNNEA-
+Zebrafish_(D.rerio)                   ------------------------------------------------------------
+Chinese_Giant_Salamander_(A.davi      ------------------------------------------------------------
+                                                                                                  
+
+Beluga_Whale_(D.leucas)               SSSDESDLERVKQELLEEVRKELQKVKEEIIEAFVQELRKRGSP
+Water_Buffalo_(B.bubalis)             SSSDESDLERVKQELLEEVRKELQKVKEEIIEAFVQELRKRGAP
+Prairie_Vole_(M.ochrogaster)          SSSDDSDLERVKQELLEEVRKELQKMKEEIIEAFIQELRKRGSP
+American_Pika_(O.princeps)            SSSDESDLERVKQELLEEVRKELQKVKEEIIEAFVQELRKRGSP
+Black_Flying_Fox_(P.alecto)           SAADESDLERVKQELLEEVRKELRKVKEEIIEAFVQELRKRGSP
+Human_(H.sapiens)                     SSSDYSDLQRVKQELLEEVKKELQKVKEEIIEAFVQELRKRGSP
+Domestic_Cat_(F.catus)                SSSDESDLERVKQELLEEVRKELQKVKEEIIEAFVQELRKRGSP
+Canada_Lynx_(L.canadensis)            SSSDESDLERVKQELLEEVRKELQKVKEEIIEAFVQELRKRGSP
+Brown_Trout_(S.trutta)                GGGEETDIERIKREILDEMRKELQKVKEEIIGAFIEELQKRGST
+Javanese_Ricefish_(O.javanicus)       GGSDDSDLEKLKQEILEEVRKELQKVKEEIIGAFIQELQKRET-
+Goldfish_(C.auratus)                  SGEGESEMERIKQELLEEVRKELQKVKNEIIGAFIQELQKRGST
+Eastern_Happy_(A.calliptera)          SGADDSDLEKMKQEILEEVRKELQKVKEEIIGAFIQELQKRST-
+Zebrafish_(D.rerio)                   --------ERERQERERQERERLERERMAALASV----------
+Chinese_Giant_Salamander_(A.davi      --------------------------------------------
+                                                                                  

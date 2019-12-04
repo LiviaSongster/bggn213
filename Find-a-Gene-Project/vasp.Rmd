@@ -1,0 +1,45 @@
+---
+title: "find a gene"
+author: "Livia Songster"
+date: "11/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# read in aligned fasta file
+```{r}
+library(bio3d)
+data <- read.fasta("VASP-alignments.fasta")
+# calculate sequence identity
+seq.id <- seqidentity(data, normalize=TRUE, similarity=FALSE, ncore=1, nseg.scale=1)
+
+# heatmap it
+pdf("heatmap.pdf")
+heatmap(seq.id,scale="none",col = cm.colors(256),margins=c(10,10))
+dev.off()
+
+# make consensus sequence
+con <- consensus(data)
+# count how many gaps
+table(con[["seq"]]) # 206 gaps.... just use query sequence
+# find best representative sequence
+
+which.max(rowSums(seq.id))
+
+# domestic cat has the best sequence, so I saved it as a new fasta
+cat <- read.fasta("cat.fasta")
+
+# now blast the pdb
+blastresults <- blast.pdb(cat)
+
+# saved the blast results
+# now read in list of pdb files
+l <- read.csv("list.csv",header=FALSE)
+pdb.annotate(l)
+
+```
+
+
